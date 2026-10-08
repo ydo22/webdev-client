@@ -1,0 +1,278 @@
+/* System sans-serif — Tailwind utilities alone do not set the body font */
+#wd-kambaz {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", "Liberation Sans", Arial, sans-serif;
+  color: #212529;
+  line-height: 1.5;
+}
+#wd-kambaz,
+#wd-kambaz * {
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .wd-main-content-offset {
+    margin-left: 120px;
+  }
+}
+.list-group.wd {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.list-group.wd > .list-group-item {
+  display: block;
+  padding: 0.4rem 0.75rem;
+  text-decoration: none;
+  border: 0;
+  border-left: 3px solid transparent;
+  color: #dc2626;
+  background-color: transparent;
+  white-space: nowrap;
+}
+.list-group.wd > .list-group-item.active {
+  color: black;
+  background-color: white;
+  border-left: 3px solid black !important;
+  font-weight: 600;
+}
+/* Assignment editor form */
+.wd-form {
+  max-width: 42rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.wd-form-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #262626;
+}
+.wd-form-field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #171717;
+  background-color: #fff;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.25rem;
+}
+.wd-form-field:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px #fecaca;
+}
+.wd-form-field-sm {
+  max-width: 10rem;
+}
+.wd-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+.wd-form-grid-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #262626;
+}
+.wd-form-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.25rem;
+}
+.wd-form-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.wd-form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #262626;
+}
+.wd-form-dates {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+.wd-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d4d4d4;
+}
+.wd-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+.wd-btn-cancel {
+  color: #262626;
+  background-color: #f5f5f5;
+  border: 1px solid #d4d4d4;
+}
+.wd-btn-cancel:hover {
+  background-color: #e5e5e5;
+}
+.wd-btn-save {
+  color: #fff;
+  background-color: #dc2626;
+  border: 1px solid #dc2626;
+}
+.wd-btn-save:hover {
+  background-color: #b91c1c;
+}
+@media (min-width: 640px) {
+  .wd-form-grid {
+    grid-template-columns: 10rem 1fr;
+    align-items: center;
+  }
+  .wd-form-grid-label {
+    text-align: right;
+  }
+  .wd-form-grid-label-top {
+    align-self: start;
+    padding-top: 0.5rem;
+  }
+  .wd-form-dates {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+#wd-signup-screen {
+  max-width: 24rem;
+  padding: 1rem;
+}
+
+#wd-signup-screen h1 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+#wd-signup-screen input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #171717;
+  background-color: #fff;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.25rem;
+}
+
+#wd-signup-screen input:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px #fecaca;
+}
+
+#wd-signup-link,
+#wd-signin-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+#wd-signup-link {
+  color: #fff;
+  background-color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+#wd-signup-link:hover {
+  background-color: #b91c1c;
+}
+
+#wd-signin-btn {
+  color: #262626;
+  background-color: #f5f5f5;
+  border: 1px solid #d4d4d4;
+}
+
+#wd-signin-btn:hover {
+  background-color: #e5e5e5;
+}
+
+#wd-signin-screen {
+  max-width: 24rem;
+  padding: 1rem;
+}
+
+#wd-signin-screen h1 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+#wd-signin-screen input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #171717;
+  background-color: #fff;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.25rem;
+}
+
+#wd-signin-screen input:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px #fecaca;
+}
+
+#wd-signin-btn,
+#wd-signup-link {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+#wd-signin-btn {
+  color: #fff;
+  background-color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+#wd-signin-btn:hover {
+  background-color: #b91c1c;
+}
+
+#wd-signup-link {
+  color: #262626;
+  background-color: #f5f5f5;
+  border: 1px solid #d4d4d4;
+}
+
+#wd-signup-link:hover {
+  background-color: #e5e5e5;
+}

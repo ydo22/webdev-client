@@ -3,25 +3,32 @@ import Link from "next/link";
 export default function Signin() {
   return (
     <div id="wd-signin-screen">
-      <h3>Sign in</h3>
+      <h1>Sign in</h1>
+
       <input
+        id="wd-username"
         placeholder="username"
-        className="wd-username"
-        defaultValue="ada"
-      />{" "}
-      <br />
+      />
+
       <input
+        id="wd-password"
         placeholder="password"
         type="password"
-        className="wd-password"
-        defaultValue="123"
-      />{" "}
-      <br />
-      <Link href="/dashboard" id="wd-signin-btn">
+      />
+
+      <label htmlFor="wd-ai-signin-note">
+        Sample note
+      </label>
+      <input
+        id="wd-ai-signin-note"
+        placeholder="sample note"
+      />
+
+      <Link id="wd-signin-btn" href="/account/profile">
         Sign in
-      </Link>{" "}
-      <br />
-      <Link href="/account/signup" id="wd-signup-link">
+      </Link>
+
+      <Link id="wd-signup-link" href="/account/signup">
         Sign up
       </Link>
     </div>
