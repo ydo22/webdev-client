@@ -13,7 +13,7 @@ export default function CourseNavigation({ cid }: { cid: string }) {
   const zoom = `/courses/${cid}/zoom`;
   const quizzes = `/courses/${cid}/quizzes`;
   const grades = `/courses/${cid}/grades`;
-  const people = `/courses/${cid}/people`;
+  const people = `/courses/${cid}/people/table`;
   return (
     <div id="wd-courses-navigation" className="wd list-group rounded-none text-lg">
       <Link
