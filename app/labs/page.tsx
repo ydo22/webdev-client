@@ -6,7 +6,7 @@ export default function Labs() {
       <h1>Labs</h1>
       <ul>
         <li>
-          <Link id="wd-github" href="https://github.com/ydo22">Shankul Upadhyay</Link>
+          <Link id="wd-github" href="https://github.com/ydo22/webdev-client">My GitHub Repository</Link>
         </li>
         <li>
           <Link id="wd-lab1-link" href="/labs/lab1">Lab 1: HTML Examples</Link>

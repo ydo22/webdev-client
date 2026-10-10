@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function TOC() {
   return (
     <div id="wd-toc">
-      <h3><Link id="wd-github" href="https://github.com/ydo22">Shankul Upadhyay</Link></h3>
+      <h3><Link id="wd-github" href="https://github.com/ydo22/webdev-client">Shankul Upadhyay</Link></h3>
       <h3>Table of Contents</h3>
       <ul>
         <li><Link href="/labs" id="wd-home-link">Labs</Link></li>
