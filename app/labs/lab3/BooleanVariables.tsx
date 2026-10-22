@@ -14,7 +14,6 @@ export default function BooleanVariables() {
   let true5 = floatingPointNumber !== 321.432;
   let false3 = numberVariable < 100;
   let personalTrue = string1 === string2;
-  let compareNumString = num1 == string3;
   const true6 = numberVariable !== 0;
   return (
     <div id="wd-boolean-variables">
@@ -36,8 +35,6 @@ export default function BooleanVariables() {
       false3 = {false3 + ""}
       <br />
       personalTrue = {personalTrue + ""}
-      <br />
-      compareNumString = {compareNumString + ""}
       <br />
       true6 = {true6 + ""}
       <hr />
