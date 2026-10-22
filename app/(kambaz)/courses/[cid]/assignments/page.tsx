@@ -1,6 +1,7 @@
 import "@/app/labs/lab2/tailwind/utilities.css";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import AssignmentItem from "./AssignmentItem";
+import * as db from "../../../database";
 
 export default async function Assignments({
   params,
@@ -8,6 +9,9 @@ export default async function Assignments({
   params: Promise<{ cid: string }>;
 }) {
   const { cid } = await params;
+  const assignments = db.assignments.filter(
+    (assignment) => assignment.course === cid,
+  );
   return (
     <div id="wd-assignments">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -46,7 +50,17 @@ export default async function Assignments({
         </button>
       </h3>
       <ul id="wd-assignment-list" className="m-0 list-none p-0">
-        <AssignmentItem
+        {assignments.map((assignment) => (
+          <AssignmentItem
+            key={assignment._id}
+            cid={cid}
+            aid={assignment._id}
+            title={assignment.title}
+            details={`Multiple Modules | Not available until ${assignment.available} | Due ${assignment.due} | ${assignment.points} pts`}
+          />
+        ))}
+        
+        {/* <AssignmentItem
           cid={cid}
           aid="123"
           title="A1 - ENV + HTML"
@@ -75,8 +89,8 @@ export default async function Assignments({
           aid="ai-a"
           title="A9 - Sample assignment"
           details="Multiple Modules | Not available until June 3 at 12:00am | Due June 10 at 11:59pm | 100 pts"
-        />
-      </ul>
+        /> */}
+      </ul> 
     </div>
   );
 }
