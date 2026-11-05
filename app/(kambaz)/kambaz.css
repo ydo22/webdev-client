@@ -5,6 +5,10 @@
   color: #212529;
   line-height: 1.5;
 }
+/* Tailwind preflight (globals.css) isn't loaded, so drop the browser's default 8px */
+body {
+  margin: 0;
+}
 #wd-kambaz,
 #wd-kambaz * {
   box-sizing: border-box;

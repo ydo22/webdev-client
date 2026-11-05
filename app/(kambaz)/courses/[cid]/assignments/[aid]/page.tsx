@@ -1,15 +1,47 @@
+"use client";
 
-import Link from "next/link";
-import * as db from "../../../../database";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  emptyAssignment,
+  useAssignmentsStore,
+  type Assignment,
+} from "../../../../store/assignmentsStore";
 
-export default async function AssignmentEditor({
-  params,
-}: {
-  params: Promise<{ cid: string; aid: string }>;
-}) {
-  const { cid, aid } = await params;
+type Draft = Omit<Assignment, "_id" | "course">;
+
+export default function AssignmentEditor() {
+  const { cid, aid } = useParams<{ cid: string; aid: string }>();
+  // Remount per assignment so the draft always starts from the one being opened.
+  return <AssignmentForm key={aid} cid={cid} aid={aid} />;
+}
+
+function AssignmentForm({ cid, aid }: { cid: string; aid: string }) {
+  const router = useRouter();
+  const isNew = aid === "new";
+  const findAssignment = useAssignmentsStore((state) => state.findAssignment);
+  const addAssignment = useAssignmentsStore((state) => state.addAssignment);
+  const updateAssignment = useAssignmentsStore((state) => state.updateAssignment);
+  const existing = isNew ? undefined : findAssignment(aid);
+  const [draft, setDraft] = useState<Draft>(existing ?? emptyAssignment);
   const listHref = `/courses/${cid}/assignments`;
-  const assignment = db.assignments.find((a) => a._id === aid);
+
+  const save = () => {
+    if (isNew) {
+      addAssignment({ ...draft, course: cid });
+    } else if (existing) {
+      updateAssignment({ ...existing, ...draft });
+    }
+    router.push(listHref);
+  };
+
+  if (!isNew && !existing) {
+    return (
+      <div id="wd-assignments-editor" className="wd-form">
+        <p>Assignment not found.</p>
+      </div>
+    );
+  }
 
   return (
     <div id="wd-assignments-editor" className="wd-form">
@@ -20,7 +52,8 @@ export default async function AssignmentEditor({
         <input
           id="wd-name"
           className="wd-form-field"
-          defaultValue={assignment?.title ?? ""}
+          value={draft.title}
+          onChange={(e) => setDraft({ ...draft, title: e.target.value })}
         />
         <p>Assignment id: {aid}</p>
       </div>
@@ -33,7 +66,8 @@ export default async function AssignmentEditor({
           id="wd-description"
           rows={5}
           className="wd-form-field"
-          defaultValue={assignment?.description ?? ""}
+          value={draft.description}
+          onChange={(e) => setDraft({ ...draft, description: e.target.value })}
         />
       </div>
 
@@ -45,7 +79,10 @@ export default async function AssignmentEditor({
           id="wd-points"
           type="number"
           className="wd-form-field wd-form-field-sm"
-          defaultValue={assignment?.points ?? 100}
+          value={draft.points}
+          onChange={(e) =>
+            setDraft({ ...draft, points: Number(e.target.value) })
+          }
         />
 
         <label htmlFor="wd-group" className="wd-form-grid-label">
@@ -169,7 +206,8 @@ export default async function AssignmentEditor({
               type="date"
               id="wd-due-date"
               className="wd-form-field"
-              defaultValue={assignment?.due ?? ""}
+              value={draft.due}
+              onChange={(e) => setDraft({ ...draft, due: e.target.value })}
             />
           </div>
 
@@ -182,7 +220,10 @@ export default async function AssignmentEditor({
                 type="date"
                 id="wd-available-from"
                 className="wd-form-field"
-                defaultValue={assignment?.available ?? ""}
+                value={draft.available}
+                onChange={(e) =>
+                  setDraft({ ...draft, available: e.target.value })
+                }
               />
             </div>
 
@@ -194,7 +235,8 @@ export default async function AssignmentEditor({
                 type="date"
                 id="wd-available-until"
                 className="wd-form-field"
-                defaultValue=""
+                value={draft.until ?? ""}
+                onChange={(e) => setDraft({ ...draft, until: e.target.value })}
               />
             </div>
           </div>
@@ -213,21 +255,23 @@ export default async function AssignmentEditor({
       </div>
 
       <div className="wd-form-actions">
-        <Link
-          href={listHref}
+        <button
+          type="button"
           id="wd-cancel"
-          className="wd-btn wd-btn-cancel"
+          className="wd-btn wd-btn-cancel cursor-pointer"
+          onClick={() => router.push(listHref)}
         >
           Cancel
-        </Link>
+        </button>
 
-        <Link
-          href={listHref}
+        <button
+          type="button"
           id="wd-save"
-          className="wd-btn wd-btn-save"
+          className="wd-btn wd-btn-save cursor-pointer"
+          onClick={save}
         >
           Save
-        </Link>
+        </button>
       </div>
     </div>
   );

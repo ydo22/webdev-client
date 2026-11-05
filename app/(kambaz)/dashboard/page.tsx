@@ -1,52 +1,125 @@
-import "@/app/labs/lab2/tailwind/utilities.css";
+"use client";
+
+import { useState } from "react";
 import CourseCard from "./CourseCard";
-import * as db from "../database";
+import {
+  emptyCourse,
+  useCoursesStore,
+  type Course,
+} from "../store/courseStore";
+import { useEnrollmentsStore } from "../store/enrollmentsStore";
+import { useAccountContext } from "../account/AccountContext";
 
 export default function Dashboard() {
-  const courses = db.courses;
+  const courses = useCoursesStore((state) => state.courses);
+  const addCourse = useCoursesStore((state) => state.addCourse);
+  const updateCourse = useCoursesStore((state) => state.updateCourse);
+  const [course, setCourse] = useState<Course>(emptyCourse);
+  const { currentUser } = useAccountContext();
+  const { enrollments, enrollIntoCourse } = useEnrollmentsStore();
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const isEnrolled = (courseId: string) =>
+    currentUser !== null &&
+    enrollments.some(
+      (e) => e.user === currentUser._id && e.course === courseId,
+    );
+  const visibleCourses =
+    currentUser && !showAllCourses
+      ? courses.filter((c) => isEnrolled(c._id))
+      : courses;
+  // Enroll the author so a new course shows up in their enrolled view.
+  const addCourseAndEnroll = () => {
+    addCourse(course);
+    const newCourse = useCoursesStore.getState().courses.at(-1);
+    if (currentUser && newCourse) enrollIntoCourse(currentUser._id, newCourse._id);
+  };
+
   return (
     <div id="wd-dashboard">
-      <h1 id="wd-dashboard-title">Dashboard</h1>
+      <h1 id="wd-dashboard-title" className="flex items-center justify-between">
+        Dashboard
+        {currentUser && (
+          <button
+            type="button"
+            id="wd-enrollments-toggle"
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white"
+            onClick={() => setShowAllCourses(!showAllCourses)}
+          >
+            Enrollments
+          </button>
+        )}
+      </h1>
       <hr />
-      <h2 id="wd-dashboard-published">Published Courses (3)</h2>
+      <h5 className="flex max-w-xl flex-wrap items-center gap-2">
+        New Course
+        {/* row-reverse keeps Add first in the markup but rightmost on screen */}
+        <span className="ms-auto flex flex-row-reverse gap-2">
+          <button
+            type="button"
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white"
+            id="wd-add-new-course-click"
+            onClick={addCourseAndEnroll}
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            className="rounded bg-yellow-400 px-3 py-1.5 text-sm font-medium"
+            id="wd-update-course-click"
+            onClick={() => updateCourse(course)}
+          >
+            Update
+          </button>
+        </span>
+      </h5>
+      <input
+        className="mb-2 mt-2 block w-full max-w-xl rounded border border-neutral-300 px-3 py-1.5"
+        value={course.name}
+        onChange={(e) => setCourse({ ...course, name: e.target.value })}
+        id="wd-course-name"
+      />
+      <textarea
+        className="mb-2 block w-full max-w-xl rounded border border-neutral-300 px-3 py-1.5"
+        rows={3}
+        value={course.description}
+        onChange={(e) =>
+          setCourse({ ...course, description: e.target.value })
+        }
+        id="wd-course-description"
+      />
+      <input
+        className="mb-2 block w-full max-w-xl rounded border border-neutral-300 px-3 py-1.5"
+        value={course.number}
+        onChange={(e) => setCourse({ ...course, number: e.target.value })}
+        id="wd-course-number"
+      />
+      <input
+        className="mb-2 block w-full max-w-xl rounded border border-neutral-300 px-3 py-1.5"
+        value={course.number}
+        onChange={(e) => setCourse({ ...course, number: e.target.value })}
+        id="wd-my-course-number"
+      />
+      <input
+        type="date"
+        className="mb-3 block w-full max-w-xl rounded border border-neutral-300 px-3 py-1.5"
+        value={course.startDate}
+        onChange={(e) => setCourse({ ...course, startDate: e.target.value })}
+        id="wd-my-course-start-date"
+      />
+      <hr />
+      <h2 id="wd-dashboard-published">Published Courses ({visibleCourses.length})</h2>
       <hr />
       <div
         id="wd-dashboard-courses"
         className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
       >
-        {courses.map((course) => (
-          <CourseCard key={course._id} {...course} />
+        {visibleCourses.map((c) => (
+          <CourseCard
+            key={c._id}
+            course={c}
+            onEdit={() => setCourse(c)}
+          />
         ))}
-        {/* <CourseCard
-          id="1234"
-          title="CS1234 React JS"
-          subtitle="Full Stack software developer"
-          image="/images/reactjs.jpg"
-        />
-        <CourseCard
-          id="2345"
-          title="CS2345 Node JS"
-          subtitle="Server side JavaScript"
-          image="/images/nodejs.jpg"
-        />
-        <CourseCard
-          id="3456"
-          title="CS3456 MongoDB"
-          subtitle="NoSQL Databases"
-          image="/images/mongodb.jpg"
-        />
-        <CourseCard
-          id="4567"
-          title="M4567 Saxophone"
-          subtitle="Saxophone Pedagogy"
-          image="/images/saxophone.webp"
-        />
-        <CourseCard
-          id="CS9999"
-          title="CS9999 Sample Course"
-          subtitle="Assistant-generated sample — not my course"
-          image="/images/reactjs.jpg"
-        /> */}
       </div>
     </div>
   );

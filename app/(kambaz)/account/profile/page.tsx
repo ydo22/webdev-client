@@ -1,6 +1,35 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAccountContext, type User } from "../AccountContext";
+
+// dob is an extra field on this form; users.json doesn't have it.
+type ProfileDraft = User & { dob?: string };
 
 export default function Profile() {
+  const { currentUser } = useAccountContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!currentUser) router.push("/account/signin");
+  }, [currentUser, router]);
+
+  if (!currentUser) return null;
+  // Keyed by user so the local draft starts over when a different user signs in.
+  return <ProfileForm key={currentUser._id} user={currentUser} />;
+}
+
+function ProfileForm({ user }: { user: User }) {
+  const { setCurrentUser, updateUser } = useAccountContext();
+  const router = useRouter();
+  const [profile, setProfile] = useState<ProfileDraft>(user);
+
+  const signout = () => {
+    setCurrentUser(null);
+    router.push("/account/signin");
+  };
+
   return (
     <div id="wd-profile-screen" className="wd-form">
       <h1 className="mb-2 text-2xl font-semibold">Profile</h1>
@@ -11,9 +40,10 @@ export default function Profile() {
         </label>
         <input
           id="wd-username"
-          defaultValue="alice"
           placeholder="username"
           className="wd-form-field"
+          value={profile.username}
+          onChange={(e) => setProfile({ ...profile, username: e.target.value })}
         />
       </div>
 
@@ -23,10 +53,11 @@ export default function Profile() {
         </label>
         <input
           id="wd-password"
-          defaultValue="123"
           placeholder="password"
           type="password"
           className="wd-form-field"
+          value={profile.password}
+          onChange={(e) => setProfile({ ...profile, password: e.target.value })}
         />
       </div>
 
@@ -35,10 +66,11 @@ export default function Profile() {
           First Name
         </label>
         <input
-          defaultValue="Alice"
           placeholder="First Name"
           id="wd-firstname"
           className="wd-form-field"
+          value={profile.firstName}
+          onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
         />
       </div>
 
@@ -47,10 +79,11 @@ export default function Profile() {
           Last Name
         </label>
         <input
-          defaultValue="Wonderland"
           placeholder="Last Name"
           id="wd-lastname"
           className="wd-form-field"
+          value={profile.lastName}
+          onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
         />
       </div>
 
@@ -59,10 +92,11 @@ export default function Profile() {
           Date of Birth
         </label>
         <input
-          defaultValue="2000-01-01"
           type="date"
           id="wd-dob"
           className="wd-form-field"
+          value={profile.dob ?? ""}
+          onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
         />
       </div>
 
@@ -71,10 +105,11 @@ export default function Profile() {
           Email
         </label>
         <input
-          defaultValue="alice@wonderland"
           type="email"
           id="wd-email"
           className="wd-form-field"
+          value={profile.email}
+          onChange={(e) => setProfile({ ...profile, email: e.target.value })}
         />
       </div>
 
@@ -83,9 +118,10 @@ export default function Profile() {
           Role
         </label>
         <select
-          defaultValue="FACULTY"
           id="wd-role"
           className="wd-form-field"
+          value={profile.role}
+          onChange={(e) => setProfile({ ...profile, role: e.target.value })}
         >
           <option value="USER">User</option>
           <option value="ADMIN">Admin</option>
@@ -95,15 +131,20 @@ export default function Profile() {
       </div>
 
       <div className="wd-form-actions">
-        <Link
+        <button
+          type="button"
           id="wd-signout-btn"
-          href="/account/signin"
           className="wd-btn wd-btn-cancel"
+          onClick={signout}
         >
           Sign out
-        </Link>
+        </button>
 
-        <button type="button" className="wd-btn wd-btn-save">
+        <button
+          type="button"
+          className="wd-btn wd-btn-save"
+          onClick={() => updateUser(profile)}
+        >
           Save
         </button>
       </div>
