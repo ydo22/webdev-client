@@ -7,11 +7,12 @@ export default function PathCalculator() {
 
   const aRaw = params.a as string;
   const bRaw = params.b as string;
-  const cRaw = params.c as string;
+  // c is optional: /12/30 and /12/30/5 both work.
+  const cRaw = (params.c as string[] | undefined)?.[0];
 
   const a = parseFloat(aRaw);
   const b = parseFloat(bRaw);
-  const c = parseFloat(cRaw);
+  const c = cRaw === undefined ? 0 : parseFloat(cRaw);
 
   const sum = a + b + c;
 
@@ -27,9 +28,11 @@ export default function PathCalculator() {
       <p>
         b = <code>{bRaw}</code>
       </p>
-      <p>
-        c = <code>{cRaw}</code>
-      </p>
+      {cRaw !== undefined && (
+        <p>
+          c = <code>{cRaw}</code>
+        </p>
+      )}
 
       <h2 className="text-green-700">Sum = {sum}</h2>
     </div>

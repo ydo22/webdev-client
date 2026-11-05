@@ -20,15 +20,17 @@ export default function CoursesLayout({
   const { currentUser } = useAccountContext();
   const enrollments = useEnrollmentsStore((state) => state.enrollments);
   const router = useRouter();
-  const enrolled =
+  // Signed-out visitors can browse (like the Dashboard); a signed-in user
+  // who isn't enrolled in this course is sent back to the Dashboard.
+  const blocked =
     currentUser !== null &&
-    enrollments.some((e) => e.user === currentUser._id && e.course === cid);
+    !enrollments.some((e) => e.user === currentUser._id && e.course === cid);
 
   useEffect(() => {
-    if (!enrolled) router.push("/dashboard");
-  }, [enrolled, router]);
+    if (blocked) router.push("/dashboard");
+  }, [blocked, router]);
 
-  if (!enrolled) return null;
+  if (blocked) return null;
 
   return (
     <div id="wd-courses">
