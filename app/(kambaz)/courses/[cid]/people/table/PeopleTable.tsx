@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { useEnrollmentsStore } from "../../../../store/enrollmentsStore";
+import * as accountClient from "../../../../account/client";
+import * as coursesClient from "../../../client";
 import {
   emptyUser,
   useAccountContext,
@@ -10,17 +11,31 @@ import {
 } from "../../../../account/AccountContext";
 
 export default function PeopleTable({ cid }: { cid: string }) {
-  const { users, createUser, updateUser, deleteUser } = useAccountContext();
-  const { enrollments, enrollIntoCourse } = useEnrollmentsStore();
+  const { currentUser, setCurrentUser } = useAccountContext();
+  // Users enrolled in this course, as reported by the server.
+  const [enrolled, setEnrolled] = useState<User[]>([]);
   const [user, setUser] = useState<User>(emptyUser);
-  const enrolled = users.filter((usr) =>
-    enrollments.some(
-      (enrollment) => enrollment.user === usr._id && enrollment.course === cid,
-    ),
-  );
-  const addUser = () => {
-    const newUser = createUser(user);
-    enrollIntoCourse(newUser._id, cid);
+
+  useEffect(() => {
+    const load = async () => {
+      setEnrolled(await coursesClient.findUsersForCourse(cid));
+    };
+    load();
+  }, [cid]);
+
+  const addUser = async () => {
+    const newUser = await accountClient.createUser(user);
+    await coursesClient.enrollIntoCourse(newUser._id, cid);
+    setEnrolled([...enrolled, newUser]);
+  };
+  const updateUser = async (usr: User) => {
+    const saved: User = await accountClient.updateUser(usr);
+    setEnrolled(enrolled.map((u) => (u._id === saved._id ? saved : u)));
+    if (currentUser?._id === saved._id) setCurrentUser(saved);
+  };
+  const deleteUser = async (userId: string) => {
+    await accountClient.deleteUser(userId);
+    setEnrolled(enrolled.filter((u) => u._id !== userId));
   };
 
   return (

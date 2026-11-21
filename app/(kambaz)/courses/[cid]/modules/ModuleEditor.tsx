@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import { useParams } from "next/navigation";
-import { useModulesStore } from "../../../store/modulesStore";
 
-export default function ModuleEditor() {
-  const { cid } = useParams();
-  const addModule = useModulesStore((state) => state.addModule);
+export default function ModuleEditor({
+  onAddModule,
+}: {
+  onAddModule: (moduleName: string) => void;
+}) {
   const [show, setShow] = useState(false);
   const [moduleName, setModuleName] = useState("");
   const handleClose = () => setShow(false);
   const handleAdd = () => {
     if (moduleName.trim()) {
-      addModule({ name: moduleName, course: String(cid) });
+      onAddModule(moduleName);
     }
     setModuleName("");
     handleClose();

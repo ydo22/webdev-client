@@ -2,33 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCoursesStore, type Course } from "../store/courseStore";
-import { useEnrollmentsStore } from "../store/enrollmentsStore";
-import { useAccountContext } from "../account/AccountContext";
+import type { Course } from "../store/courseStore";
 
 export default function CourseCard({
   course,
+  enrolled,
   onEdit,
+  onDelete,
+  onToggleEnrollment,
 }: {
   course: Course;
-  onEdit: () => void;
-}) {
-  const deleteCourse = useCoursesStore((state) => state.deleteCourse);
-  const { currentUser } = useAccountContext();
-  const { enrollments, enrollIntoCourse, unenrollFromCourse } =
-    useEnrollmentsStore();
   // null when nobody is signed in, which hides the Enroll/Unenroll button.
-  const enrolled = currentUser
-    ? enrollments.some((e) => e.user === currentUser._id && e.course === course._id)
-    : null;
-  const toggleEnrollment = () => {
-    if (!currentUser) return;
-    if (enrolled) {
-      unenrollFromCourse(currentUser._id, course._id);
-    } else {
-      enrollIntoCourse(currentUser._id, course._id);
-    }
-  };
+  enrolled: boolean | null;
+  onEdit: () => void;
+  onDelete: () => void;
+  onToggleEnrollment: () => void;
+}) {
   return (
     <div className="wd-dashboard-course w-[300px] max-w-full overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
       <Link
@@ -36,7 +25,7 @@ export default function CourseCard({
         className="wd-dashboard-course-link block text-neutral-900 no-underline"
       >
         <Image
-          src={course.image}
+          src={course.image || "/images/reactjs.jpg"}
           width={300}
           height={160}
           alt={course.name}
@@ -73,7 +62,7 @@ export default function CourseCard({
               className="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white"
               onClick={(e) => {
                 e.preventDefault();
-                deleteCourse(course._id);
+                onDelete();
               }}
             >
               Delete
@@ -87,7 +76,7 @@ export default function CourseCard({
                 }`}
                 onClick={(e) => {
                   e.preventDefault();
-                  toggleEnrollment();
+                  onToggleEnrollment();
                 }}
               >
                 {enrolled ? "Unenroll" : "Enroll"}

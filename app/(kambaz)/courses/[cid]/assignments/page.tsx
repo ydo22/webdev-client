@@ -1,23 +1,36 @@
 "use client";
 
 import "@/app/labs/lab2/tailwind/utilities.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { BsGripVertical } from "react-icons/bs";
 import { FaCaretDown, FaPlus, FaSearch } from "react-icons/fa";
 import { IoEllipsisVertical } from "react-icons/io5";
 import AssignmentItem from "./AssignmentItem";
+import * as client from "../../client";
 import { useAssignmentsStore } from "../../../store/assignmentsStore";
 
 export default function Assignments() {
   const { cid } = useParams<{ cid: string }>();
-  const assignments = useAssignmentsStore((state) => state.assignments).filter(
-    (assignment) => assignment.course === cid,
-  );
+  // The server filters by course; the store caches what it returned.
+  const assignments = useAssignmentsStore((state) => state.assignments);
+  const setAssignments = useAssignmentsStore((state) => state.setAssignments);
   const deleteAssignment = useAssignmentsStore((state) => state.deleteAssignment);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const pendingDelete = assignments.find((a) => a._id === pendingDeleteId);
+
+  useEffect(() => {
+    const load = async () => {
+      setAssignments(await client.findAssignmentsForCourse(cid));
+    };
+    load();
+  }, [cid, setAssignments]);
+
+  const onDeleteAssignment = async (assignmentId: string) => {
+    await client.deleteAssignment(assignmentId);
+    deleteAssignment(assignmentId);
+  };
 
   return (
     <div id="wd-assignments">
@@ -138,8 +151,8 @@ export default function Assignments() {
                 type="button"
                 id="wd-delete-assignment-yes"
                 className="cursor-pointer rounded border-0 bg-red-600 px-3 py-1.5 text-sm text-white"
-                onClick={() => {
-                  deleteAssignment(pendingDelete._id);
+                onClick={async () => {
+                  await onDeleteAssignment(pendingDelete._id);
                   setPendingDeleteId(null);
                 }}
               >

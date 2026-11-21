@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccountContext, type User } from "../AccountContext";
+import * as client from "../client";
 
 // dob is an extra field on this form; users.json doesn't have it.
 type ProfileDraft = User & { dob?: string };
@@ -21,11 +22,16 @@ export default function Profile() {
 }
 
 function ProfileForm({ user }: { user: User }) {
-  const { setCurrentUser, updateUser } = useAccountContext();
+  const { setCurrentUser } = useAccountContext();
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileDraft>(user);
 
-  const signout = () => {
+  const updateProfile = async () => {
+    const updated = await client.updateUser(profile);
+    setCurrentUser(updated);
+  };
+  const signout = async () => {
+    await client.signout();
     setCurrentUser(null);
     router.push("/account/signin");
   };
@@ -143,7 +149,8 @@ function ProfileForm({ user }: { user: User }) {
         <button
           type="button"
           className="wd-btn wd-btn-save"
-          onClick={() => updateUser(profile)}
+          id="wd-save-profile-btn"
+          onClick={updateProfile}
         >
           Save
         </button>

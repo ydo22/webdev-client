@@ -1,37 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CourseCard from "./CourseCard";
+import * as client from "../courses/client";
 import {
   emptyCourse,
   useCoursesStore,
   type Course,
 } from "../store/courseStore";
-import { useEnrollmentsStore } from "../store/enrollmentsStore";
 import { useAccountContext } from "../account/AccountContext";
 
 export default function Dashboard() {
+  const { currentUser } = useAccountContext();
   const courses = useCoursesStore((state) => state.courses);
+  const setCourses = useCoursesStore((state) => state.setCourses);
   const addCourse = useCoursesStore((state) => state.addCourse);
   const updateCourse = useCoursesStore((state) => state.updateCourse);
+  const deleteCourse = useCoursesStore((state) => state.deleteCourse);
   const [course, setCourse] = useState<Course>(emptyCourse);
-  const { currentUser } = useAccountContext();
-  const { enrollments, enrollIntoCourse } = useEnrollmentsStore();
   const [showAllCourses, setShowAllCourses] = useState(false);
-  const isEnrolled = (courseId: string) =>
-    currentUser !== null &&
-    enrollments.some(
-      (e) => e.user === currentUser._id && e.course === courseId,
-    );
-  const visibleCourses =
-    currentUser && !showAllCourses
-      ? courses.filter((c) => isEnrolled(c._id))
-      : courses;
-  // Enroll the author so a new course shows up in their enrolled view.
-  const addCourseAndEnroll = () => {
-    addCourse(course);
-    const newCourse = useCoursesStore.getState().courses.at(-1);
-    if (currentUser && newCourse) enrollIntoCourse(currentUser._id, newCourse._id);
+  // Ids of the courses the signed-in user is enrolled in (from the server).
+  const [myCourseIds, setMyCourseIds] = useState<string[]>([]);
+  const [error, setError] = useState("");
+
+  // Express is the source of truth: reload whenever the user or view changes.
+  // Signed out, everyone sees every course; signed in, only enrolled courses
+  // unless "Enrollments" toggles the full catalog.
+  useEffect(() => {
+    const load = async () => {
+      try {
+        if (!currentUser) {
+          setMyCourseIds([]);
+          setCourses(await client.fetchAllCourses());
+          return;
+        }
+        const mine = await client.findMyCourses();
+        setMyCourseIds(mine.map((c) => c._id));
+        setCourses(showAllCourses ? await client.fetchAllCourses() : mine);
+        setError("");
+      } catch {
+        setCourses([]);
+        setError("Unable to load courses. Is the Node server running?");
+      }
+    };
+    load();
+  }, [currentUser, showAllCourses, setCourses]);
+
+  const onAddCourse = async () => {
+    if (!currentUser) {
+      setError("Sign in to create a course.");
+      return;
+    }
+    const newCourse = await client.createCourse(course);
+    addCourse(newCourse);
+    // The server enrolls the creator, so mirror that locally.
+    setMyCourseIds([...myCourseIds, newCourse._id]);
+  };
+  const onUpdateCourse = async () => {
+    const saved = await client.updateCourse(course);
+    updateCourse(saved);
+  };
+  const onDeleteCourse = async (courseId: string) => {
+    await client.deleteCourse(courseId);
+    deleteCourse(courseId);
+    setMyCourseIds(myCourseIds.filter((id) => id !== courseId));
+  };
+  const onToggleEnrollment = async (courseId: string) => {
+    if (myCourseIds.includes(courseId)) {
+      await client.unenrollFromCourse("current", courseId);
+      setMyCourseIds(myCourseIds.filter((id) => id !== courseId));
+      // In the enrolled-only view the course disappears from the list.
+      if (!showAllCourses) deleteCourse(courseId);
+    } else {
+      await client.enrollIntoCourse("current", courseId);
+      setMyCourseIds([...myCourseIds, courseId]);
+    }
   };
 
   return (
@@ -50,6 +93,11 @@ export default function Dashboard() {
         )}
       </h1>
       <hr />
+      {error && (
+        <p id="wd-dashboard-error" className="my-2 rounded bg-red-100 px-3 py-2 text-red-800">
+          {error}
+        </p>
+      )}
       <h5 className="flex max-w-xl flex-wrap items-center gap-2">
         New Course
         {/* row-reverse keeps Add first in the markup but rightmost on screen */}
@@ -58,7 +106,7 @@ export default function Dashboard() {
             type="button"
             className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white"
             id="wd-add-new-course-click"
-            onClick={addCourseAndEnroll}
+            onClick={onAddCourse}
           >
             Add
           </button>
@@ -66,7 +114,7 @@ export default function Dashboard() {
             type="button"
             className="rounded bg-yellow-400 px-3 py-1.5 text-sm font-medium"
             id="wd-update-course-click"
-            onClick={() => updateCourse(course)}
+            onClick={onUpdateCourse}
           >
             Update
           </button>
@@ -107,17 +155,20 @@ export default function Dashboard() {
         id="wd-my-course-start-date"
       />
       <hr />
-      <h2 id="wd-dashboard-published">Published Courses ({visibleCourses.length})</h2>
+      <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
       <hr />
       <div
         id="wd-dashboard-courses"
         className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
       >
-        {visibleCourses.map((c) => (
+        {courses.map((c) => (
           <CourseCard
             key={c._id}
             course={c}
+            enrolled={currentUser ? myCourseIds.includes(c._id) : null}
             onEdit={() => setCourse(c)}
+            onDelete={() => onDeleteCourse(c._id)}
+            onToggleEnrollment={() => onToggleEnrollment(c._id)}
           />
         ))}
       </div>

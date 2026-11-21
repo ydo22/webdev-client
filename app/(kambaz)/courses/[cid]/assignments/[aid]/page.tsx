@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import * as client from "../../../client";
 import {
   emptyAssignment,
   useAssignmentsStore,
@@ -12,6 +13,23 @@ type Draft = Omit<Assignment, "_id" | "course">;
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
+  const setAssignments = useAssignmentsStore((state) => state.setAssignments);
+  const [loaded, setLoaded] = useState(false);
+
+  // After a refresh the store is empty, so load the course's assignments
+  // from the server before building the form.
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setAssignments(await client.findAssignmentsForCourse(cid));
+      } finally {
+        setLoaded(true);
+      }
+    };
+    load();
+  }, [cid, setAssignments]);
+
+  if (!loaded) return null;
   // Remount per assignment so the draft always starts from the one being opened.
   return <AssignmentForm key={aid} cid={cid} aid={aid} />;
 }
@@ -26,11 +44,13 @@ function AssignmentForm({ cid, aid }: { cid: string; aid: string }) {
   const [draft, setDraft] = useState<Draft>(existing ?? emptyAssignment);
   const listHref = `/courses/${cid}/assignments`;
 
-  const save = () => {
+  const save = async () => {
     if (isNew) {
-      addAssignment({ ...draft, course: cid });
+      const created = await client.createAssignmentForCourse(cid, draft);
+      addAssignment(created);
     } else if (existing) {
-      updateAssignment({ ...existing, ...draft });
+      const saved = await client.updateAssignment({ ...existing, ...draft });
+      updateAssignment(saved);
     }
     router.push(listHref);
   };

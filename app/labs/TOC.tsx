@@ -10,11 +10,17 @@ const LINKS = [
   { href: "/labs/lab2/tailwind", id: "wd-tailwind-link", label: "Lab 2: Tailwind", match: () => false },
   { href: "/labs/lab3", id: "wd-lab3-link", label: "Lab 3", match: (p: string) => p.includes("/lab3") },
   { href: "/labs/lab4", id: "wd-lab4-link", label: "Lab 4", match: () => false },
-  { href: "/labs/lab5", id: "wd-lab5-link", label: "Lab 5", match: () => false },
+  { href: "/labs/lab5", id: "wd-lab5-link", label: "Lab 5", match: (p: string) => p.includes("/lab5") },
   { href: "https://kambaz.dev/book/ch1", id: "wd-toc-book-link", label: "Book Ch1", match: () => false },
   { href: "https://kambaz.dev/book/ch3", id: "wd-book-ch3-link", label: "Book Ch3", match: () => false },
   { href: "/", id: "wd-kambaz-link", label: "Kambaz", match: () => false },
 ] as const;
+
+// Node server repo (from webdev-server/package.json) and the deployed server.
+// On Vercel NEXT_PUBLIC_HTTP_SERVER is the Render root URL; locally it's
+// http://localhost:4000.
+const NODE_GITHUB_URL = "https://github.com/ydo22/webdev-server";
+const HTTP_SERVER = process.env.NEXT_PUBLIC_HTTP_SERVER;
 
 const activeStyle = {
   backgroundColor: "#2563eb",
@@ -46,6 +52,16 @@ export default function TOC() {
             </li>
           );
         })}
+        <li>
+          <a id="wd-node-github-link" href={NODE_GITHUB_URL} className="text-blue-700 underline">
+            Node Server Repo
+          </a>
+        </li>
+        <li>
+          <a id="wd-render-link" href={HTTP_SERVER} className="text-blue-700 underline">
+            Node Server (Render)
+          </a>
+        </li>
       </ul>
     </div>
   );

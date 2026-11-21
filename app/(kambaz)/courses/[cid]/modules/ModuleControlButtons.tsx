@@ -4,8 +4,13 @@ import { IoEllipsisVertical } from "react-icons/io5";
 import GreenCheckmark from "./GreenCheckmark";
 import { useModulesStore } from "../../../store/modulesStore";
 
-export default function ModuleControlButtons({ moduleId }: { moduleId: string }) {
-  const deleteModule = useModulesStore((state) => state.deleteModule);
+export default function ModuleControlButtons({
+  moduleId,
+  onRemoveModule,
+}: {
+  moduleId: string;
+  onRemoveModule: (moduleId: string) => void;
+}) {
   const editModule = useModulesStore((state) => state.editModule);
   return (
     <span className="flex shrink-0 items-center gap-3">
@@ -17,7 +22,7 @@ export default function ModuleControlButtons({ moduleId }: { moduleId: string })
       <FaTrash
         className="cursor-pointer text-red-600"
         title="Delete module"
-        onClick={() => deleteModule(moduleId)}
+        onClick={() => onRemoveModule(moduleId)}
       />
       <GreenCheckmark />
       <BsPlus className="text-3xl" />

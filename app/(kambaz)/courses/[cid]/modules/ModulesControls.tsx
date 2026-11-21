@@ -1,7 +1,11 @@
 import { FaCheckCircle } from "react-icons/fa";
 import ModuleEditor from "./ModuleEditor";
 
-export default function ModulesControls() {
+export default function ModulesControls({
+  onAddModule,
+}: {
+  onAddModule: (moduleName: string) => void;
+}) {
   return (
     <div id="wd-modules-controls" className="mb-3 flex flex-wrap items-center gap-2">
       <button
@@ -23,7 +27,7 @@ export default function ModulesControls() {
           <option value="unpublish-all">Unpublish All</option>
         </select>
       </label>
-      <ModuleEditor />
+      <ModuleEditor onAddModule={onAddModule} />
     </div>
   );
 }
